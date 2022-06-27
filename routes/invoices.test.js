@@ -37,7 +37,7 @@ test("Get one invoice info", async function () {
           "invoice": {
             id: 1,
             amt: 999,
-            add_date: expect.anything(),
+            add_date: expect.any(String),
             paid: false,
             paid_date: null,
             company: {
@@ -55,10 +55,10 @@ test("Add an invoice", async function () {
     expect(response.body).toEqual(
         {
           "invoice": {
-            id: expect.anything(),
+            id: expect.any(Number),
             comp_code: "mjm",
             amt: 999,
-            add_date: expect.anything(),
+            add_date: expect.any(String),
             paid: false,
             paid_date: null,
           }
@@ -71,11 +71,11 @@ const response = await request(app).put("/invoices/1").send({amt: 899, paid: fal
 expect(response.body).toEqual(
     {
         "invoice": {
-        id: expect.anything(),
+        id: expect.any(Number),
         comp_code: 'mjm',
         paid: false,
         amt: 899,
-        add_date: expect.anything(),
+        add_date: expect.any(String),
         paid_date: null,
         }
     }

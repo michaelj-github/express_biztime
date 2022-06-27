@@ -37,6 +37,31 @@ test("Get information for one company", async function () {
     );
 });
 
+test("Get information for a company with an invoice", async function () {
+  await db.query(`DELETE FROM invoices`)
+  await db.query("SELECT setval('invoices_id_seq', 1, false)");
+  const invoice = await db.query(`INSERT INTO invoices (comp_code, amt) VALUES ('mjm', 999) RETURNING  id, comp_code, amt`);
+    const response = await request(app).get("/companies/mjm");
+  expect(response.body).toEqual(
+      {
+        "company": {
+          code: "mjm",
+          name: "MJMCO",
+          description: "Michael J Murphy Consulting",            
+        }, "invoices": [
+          {
+            id: expect.any(Number),
+            comp_code: "mjm",
+            amt: 999,
+            add_date: expect.any(String),
+            paid: false,
+            paid_date: null,        
+          }
+        ],
+      }
+  );
+});
+
 test("Add a company", async function () {
     const response = await request(app).post("/companies").send({name: "SDMCO", description: "Sherry D Murphy Therapy"});
     expect(response.body).toEqual(
