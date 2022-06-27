@@ -6,7 +6,7 @@ const db = require("../db");
 /** GET / - return a list of invoices */
 router.get("/", async (req, res, next) => {
     try {
-        const results = await db.query("SELECT id, comp_code, amt, paid, add_date, paid_date FROM invoices")
+        const results = await db.query("SELECT id, comp_code, amt FROM invoices")
         return res.json({ invoices: results.rows});
     }
     catch (err) {
@@ -67,8 +67,23 @@ router.put("/:id", async (req, res, next) => {
       }
 
       const { id } = req.params;
-      const { amt } = req.body;
-      const results = await db.query('UPDATE invoices SET amt=$1 WHERE id=$2 RETURNING id, comp_code, amt, paid, add_date, paid_date', [amt, id])
+      const { amt, paid, paid_date } = req.body;
+
+      const paidResult = await db.query(`SELECT paid, paid_date FROM invoices WHERE id = $1`, [id])
+
+      if (paidResult.rows.length === 0) {
+        throw new ExpressError(`An error occurred. Unable to update the invoice with id of ${id}`, 404)
+      }
+
+      let newPaidDate;
+
+      if (paid && !paid_date) {
+        newPaidDate = new Date();
+      } else if (!paid) {
+        newPaidDate = null
+      }
+
+      const results = await db.query('UPDATE invoices SET amt=$1, paid=$2, paid_date=$3 WHERE id=$4 RETURNING id, comp_code, amt, paid, add_date, paid_date', [amt, paid, newPaidDate, id])
 
       if (results.rows.length === 0) {
         throw new ExpressError(`An error occurred. Unable to update the invoice with id of ${id}`, 404)

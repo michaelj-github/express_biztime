@@ -1,5 +1,72 @@
 # BizTime
 
+## Notes on the solution files
+
+### Steps to create the solution environment:
+
+- mkdir express_biztime
+- cd express_biztime
+
+- npm init -y
+- npm i express
+- git init
+
+- npm i pg
+
+```
+jest --version
+28.1.1
+
+nodemon -v
+2.0.16
+```
+
+- add these lines to data.sql:
+
+```
+DROP DATABASE IF EXISTS biztime;
+CREATE DATABASE biztime;
+```
+
+- psql < data.sql
+
+- npm i --save-dev supertest
+
+- npm i slugify
+
+- Open in chrome browser
+
+```
+http://localhost:3000/
+```
+
+- Use Insomnia to submit GET/POST/PUT/DELETE requests to localhost:3000 with JSON body
+
+### Examples:
+
+```
+// GET request to list all companies in the database:
+http://localhost:3000/companies
+
+// POST request to add a company to the database:
+http://localhost:3000/companies
+{
+    "name": "MJMCO",
+    "description": "Michael J Murphy Consulting"
+}
+
+// PUT request to pay invoice #1
+http://localhost:3000/invoices/1
+{
+    "amt": 999,
+    "paid": true
+}
+```
+
+- Run jest from command line to execute tests
+
+## Exercise instructions
+
 In this exercise, you’ll build a REST-ful backend API server for a simple company/invoice tracker.
 
 Step 0: Setup
