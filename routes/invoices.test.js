@@ -86,3 +86,8 @@ test("Delete an invoice", async function () {
     const response = await request(app).delete("/invoices/1");
     expect(response.body).toEqual({"status": "deleted"});
 });
+
+test("Invalid invoice id", async function () {
+  const response = await request(app).get("/invoices/0");
+  expect(response.status).toEqual(404);
+});

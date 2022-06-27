@@ -67,3 +67,8 @@ test("Delete a company", async function () {
     const response = await request(app).delete("/companies/mjm");
     expect(response.body).toEqual({"status": "deleted"});
 });
+
+test("Invalid company code", async function () {
+  const response = await request(app).get("/companies/foo");
+  expect(response.status).toEqual(404);
+});

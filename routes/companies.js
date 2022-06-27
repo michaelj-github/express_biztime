@@ -19,12 +19,12 @@ router.get("/", async (req, res, next) => {
 router.get("/:code", async (req, res, next) => {
     try {
         const { code } = req.params;
-        const results = await db.query('SELECT code, name, description FROM companies WHERE code = $1', [code])
-        if (results.rows.length === 0) {
+        const company = await db.query('SELECT code, name, description FROM companies WHERE code = $1', [code])
+        if (company.rows.length === 0) {
           throw new ExpressError(`Can't find a company with code of ${code}`, 404)
         }
         const invoices = await db.query("SELECT id, comp_code, amt, paid, add_date, paid_date FROM invoices where comp_code = $1", [code])
-    return res.json({ company: results.rows[0], invoices: invoices.rows });
+    return res.json({ company: company.rows[0], invoices: invoices.rows });
     } catch (err) {
       return next(err);
     }
@@ -34,7 +34,7 @@ router.get("/:code", async (req, res, next) => {
 router.post("/", async (req, res, next) => {
     try {
         const { name, description } = req.body;
-        let code = slugify(name, {lower: true});
+        const code = slugify(name, {lower: true});
         const results = await db.query('INSERT INTO companies (code, name, description) VALUES ($1, $2, $3) RETURNING code, name, description', [code, name, description]);
         return res.status(201).json({ company: results.rows[0] })
     } catch (err) {
@@ -48,17 +48,16 @@ router.put("/:code", async (req, res, next) => {
       if ("code" in req.body) {
         throw new ExpressError("Changing the company code is not allowed.", 400)
       }
-
       const { code } = req.params;
       const { name, description } = req.body;
+      if (!name || !description) {
+        throw new ExpressError(`An error occurred. Both Name and Description are required fields.`, 404)
+      }
       const results = await db.query('UPDATE companies SET name=$1, description=$2 WHERE code=$3 RETURNING code, name, description', [name, description, code])
-
       if (results.rows.length === 0) {
         throw new ExpressError(`An error occurred. Unable to update the company with code of ${code}`, 404)
       }
-
       return res.send({ company: results.rows[0] })
-
     } catch (err) {
       return next(err);
     }
